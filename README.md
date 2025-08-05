@@ -1,13 +1,14 @@
-# MCP Puppeteer Search
+# MCP Puppeteer Web Tools
 
-A Node.js search tool using Puppeteer to scrape search results from Google and Bing.
+A Node.js tool using Puppeteer for web search and content extraction.
 
 ## Features
 
-- Search both Google and Bing
+- Search Bing (default search engine)
+- Open and extract content from any URL
 - Automatic browser detection
-- Results in Markdown or JSON format
-- First page results only
+- Results in Markdown or JSON format (for search)
+- Human-like browsing behavior to avoid detection
 
 ## Installation
 
@@ -17,21 +18,41 @@ npm install
 
 ## Usage
 
+### Search Command
 ```bash
-# Search Google (default)
-npm start -- [query]
-npm start -- [query] [format]
+npm start -- search [query] [format]
+```
+- Searches Bing for the query
+- Optional `format` parameter: `json` for JSON output (default: markdown)
 
-# Search Bing 
-npm start -- bing [query]
-npm start -- bing [query] [format]
+### Open Command  
+```bash
+npm start -- open [url]
+```
+- Fetches and displays the full HTML content of the specified URL
 
-# Examples
-npm start -- "node.js puppeteer"
-npm start -- bing "typescript tutorial" json
+## Examples
+
+Search for "test query":
+```bash
+npm start -- search "test query"
+```
+
+Search with JSON output:
+```bash
+npm start -- search "node.js" json
+```
+
+Open a webpage:
+```bash
+npm start -- open https://example.com
 ```
 
 ## Options
 
+For search command:
 - `query`: Search query (required)
 - `format`: Output format - `markdown` (default) or `json`
+
+For open command:
+- `url`: Web page URL to fetch (required)

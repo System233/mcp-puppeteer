@@ -76,7 +76,7 @@ async function searchGoogle(page: Page, query: string): Promise<SearchResult[]> 
   await randomDelay(2000, 5000);
 
   // 更新后的Google搜索结果选择器
-  const results = await page.$$eval('div[data-header-feature] > div > div', (divs) => {
+  const results = await page.$$eval('div[data-async-context] > div > div', (divs) => {
     return divs.map(div => {
       const title = div.querySelector('h3')?.textContent || '';
       const url = div.querySelector('a')?.href || '';
