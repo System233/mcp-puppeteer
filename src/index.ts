@@ -1,6 +1,6 @@
 import { launchBrowser } from './browser';
 import { search } from './search';
-import { formatResults } from './markdown';
+import { formatResults, htmlToMarkdown } from './markdown';
 
 interface SearchOptions {
   engine: 'google' | 'bing';
@@ -43,7 +43,7 @@ async function fetchPageContent(url: string): Promise<string> {
       const article = document.querySelector('article') ||
                      document.querySelector('main') ||
                      document.body;
-      return article.innerText;
+      return article.innerHTML;
     });
 
     await browser.close();
@@ -77,7 +77,7 @@ async function main() {
       
       console.log(`Fetching content from: ${url}`);
       const content = await fetchPageContent(url);
-      const formatted = formatResults(content);
+      const formatted = htmlToMarkdown(content);
       console.log(formatted);
     } else {
       throw new Error('Invalid command. Use "search [query]" or "open [url]"');
