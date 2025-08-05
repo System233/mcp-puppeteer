@@ -19,8 +19,33 @@ async function fetchPageContent(url: string): Promise<string> {
   const browser = await launchBrowser();
   try {
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-    const content = await page.content();
+    
+    // 设置随机User-Agent
+    const userAgents = [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/120.0'
+    ];
+    await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
+    
+    // 隐藏自动化特征
+    await page.evaluateOnNewDocument(() => {
+      Object.defineProperty(navigator, 'webdriver', { get: () => false });
+    });
+
+    await page.goto(url, {
+      waitUntil: 'networkidle2',
+      timeout: 30000
+    });
+
+    // 提取主要内容 - 尝试获取article/main标签内容，否则获取body
+    const content = await page.evaluate(() => {
+      const article = document.querySelector('article') ||
+                     document.querySelector('main') ||
+                     document.body;
+      return article.innerText;
+    });
+
     await browser.close();
     return content;
   } catch (error) {
@@ -52,7 +77,8 @@ async function main() {
       
       console.log(`Fetching content from: ${url}`);
       const content = await fetchPageContent(url);
-      console.log(content);
+      const formatted = formatResults(content);
+      console.log(formatted);
     } else {
       throw new Error('Invalid command. Use "search [query]" or "open [url]"');
     }

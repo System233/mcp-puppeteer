@@ -1,19 +1,32 @@
 import { SearchResult } from './search';
 
-export function convertToMarkdown(results: SearchResult[]): string {
-  return results.map((result, index) => {
-    return `### ${index + 1}. [${result.title}](${result.url})\n\n` +
-           `${result.description}\n\n` +
-           `---\n`;
-  }).join('\n');
+function convertToMarkdown(results: SearchResult[]): string {
+  return results
+    .map(result => `### ${result.title}\n${result.url}\n\n${result.description}`)
+    .join('\n\n---\n\n');
 }
 
-export function formatResults(results: SearchResult[], format: 'markdown' | 'json' = 'markdown'): string {
-  switch(format) {
+function textToMarkdown(content: string): string {
+  return `# Page Content\n\n${content
+    .split('\n')
+    .filter(line => line.trim())
+    .map(line => `- ${line}`)
+    .join('\n')}`;
+}
+
+export function formatResults(
+  content: SearchResult[] | string,
+  format: 'markdown' | 'json' = 'markdown'
+): string {
+  if (typeof content === 'string') {
+    return textToMarkdown(content);
+  }
+
+  switch (format) {
     case 'markdown':
-      return convertToMarkdown(results);
+      return convertToMarkdown(content);
     case 'json':
-      return JSON.stringify(results, null, 2);
+      return JSON.stringify(content, null, 2);
     default:
       throw new Error(`Unsupported format: ${format}`);
   }
