@@ -2,19 +2,21 @@
   "name": "mcp-puppeteer",
   "version": "1.0.0",
   "main": "index.js",
+  "bin": "dist/mcp-service.js",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "build": "tsc",
     "start": "ts-node src/index.ts",
-    "prestart": "npm run build"
+    "mcp": "ts-node src/mcp-service.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.1",
     "@types/turndown": "^5.0.5",
     "cheerio": "^1.1.2",
     "edge-paths": "^3.0.5",

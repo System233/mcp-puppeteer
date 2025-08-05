@@ -1,13 +1,14 @@
-# MCP Puppeteer Web Tools
+# MCP Puppeteer Service
 
-A Node.js tool using Puppeteer for web search and content extraction.
+A web content search and extraction service using Puppeteer with browser instance management.
 
 ## Features
 
-- Search Bing (default search engine)
-- Open and extract content from any URL
-- Automatic browser detection
-- Results in Markdown or JSON format (for search)
+- Browser instance pooling for faster searches
+- Automatic browser instance reuse
+- Search engine adapters (Google/Bing)
+- HTML to Markdown conversion
+- URL content extraction
 - Human-like browsing behavior to avoid detection
 
 ## Installation
@@ -16,20 +17,33 @@ A Node.js tool using Puppeteer for web search and content extraction.
 npm install
 ```
 
-## Usage
+## Usage as MCP Service
 
-### Search Command
-```bash
-npm start -- search [query] [format]
-```
-- Searches Bing for the query
-- Optional `format` parameter: `json` for JSON output (default: markdown)
+### CLI Commands
 
-### Open Command  
 ```bash
-npm start -- open [url]
+# Search with query (uses browser pool)
+npm start -- search "your query"
+
+# Open URL and extract content (creates new browser instance)
+npm start -- fetch https://example.com
+
 ```
-- Fetches and displays the full HTML content of the specified URL
+
+### Browser Instance Management
+
+The service maintains a pool of browser instances to accelerate search operations:
+
+1. First search creates a new browser instance
+2. Subsequent searches reuse existing instances
+3. Idle instances are automatically closed after 5 minutes
+4. Maximum 3 concurrent browser instances
+
+### Performance Tips
+
+- For batch operations, keep the service running
+- Use `search` command for fastest results (reuses instances)
+- Close unused instances with `close-all` when done
 
 ## Examples
 
@@ -45,8 +59,9 @@ npm start -- search "node.js" json
 
 Open a webpage:
 ```bash
-npm start -- open https://example.com
+npm start -- fetch https://example.com
 ```
+
 
 ## Options
 
