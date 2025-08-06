@@ -26,7 +26,7 @@ const internalFetch = async (url: string) => {
 // 暴露搜索功能
 server.tool(
   "search",
-  `在搜索引擎中搜索关键词，返回Markdown或JSON格式的匹配部分快照，可继续使用extract-content工具访问链接以读取完整页面`,
+  `此工具赋予你网络搜索能力，使用此工具在网络上搜索关键词，返回网络搜索结果。`,
   {
     query: z.string().describe("搜索关键词，必需"),
     engine: z
@@ -69,7 +69,7 @@ server.tool(
 // 暴露内容提取功能
 server.tool(
   "fetch",
-  `网页内容提取/抓取工具 - 访问URL并从中提取主要内容`,
+  `此工具赋予你网页访问能力，使用此工具访问并获取网页内容`,
   {
     url: z.string().url().describe("有效的网页URL，必需"),
   },
@@ -86,7 +86,7 @@ server.tool(
       _meta: {},
     };
   }
-);
+)
 
 async function main() {
   const command = process.argv[3];

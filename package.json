@@ -1,6 +1,6 @@
 {
   "name": "mcp-puppeteer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "bin": "dist/mcp-service.js",
   "files": [
@@ -17,7 +17,7 @@
   "keywords": ["puppeteer","mcp-server","search-enging","bing"],
   "author": "System233",
   "license": "MIT",
-  "description": "",
+  "description": "MCP搜索插件，为AI提供网络能力",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.1",
     "cheerio": "^1.1.2",

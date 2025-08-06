@@ -45,14 +45,6 @@ turndownService.addRule("links", {
   },
 });
 
-turndownService.addRule("headers", {
-  filter: ["h1", "h2", "h3", "h4", "h5", "h6"],
-  replacement: (content, node) => {
-    const level = parseInt((node as HTMLElement).tagName.substring(1));
-    return `${"#".repeat(level)} ${content}\n\n`;
-  },
-});
-
 turndownService.addRule("paragraphs", {
   filter: ["p"],
   replacement: (content) => `\n${content}\n\n`,
@@ -66,6 +58,10 @@ turndownService.addRule("divs", {
 turndownService.addRule("styles", {
   filter: ["style"],
   replacement: () => "<!-- styles omitted -->\n",
+});
+turndownService.addRule("scripts", {
+  filter: ["script"],
+  replacement: () => "<!-- script omitted -->\n",
 });
 
 turndownService.addRule("metas", {
