@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "bin": "dist/mcp-service.js",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
@@ -11,13 +14,12 @@
     "start": "ts-node src/index.ts",
     "mcp": "ts-node src/mcp-service.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["puppeteer","mcp-server","search-enging","bing"],
+  "author": "System233",
+  "license": "MIT",
   "description": "",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.1",
-    "@types/turndown": "^5.0.5",
     "cheerio": "^1.1.2",
     "edge-paths": "^3.0.5",
     "marked": "^16.1.2",
@@ -28,6 +30,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.2.0",
     "@types/puppeteer": "^5.4.7",
+    "@types/turndown": "^5.0.5",
     "jest": "^30.0.5",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
