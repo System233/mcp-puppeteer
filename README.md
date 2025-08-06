@@ -14,9 +14,9 @@ npx mcp-puppeteer
 
 
 # 其他用法：搜索
-npx mcp-puppeteer search "搜索内容"
+npx mcp-puppeteer -- search "搜索内容"
 # 抓取页面
-npx mcp-puppeteer fetch "https://example.com"
+npx mcp-puppeteer -- fetch "https://example.com"
 ```
 
 # MCP Puppeteer Service
@@ -45,10 +45,10 @@ npm install -g mcp-puppeteer
 
 ```bash
 # Search with query (uses browser pool)
-npx mcp-puppeteer search "your query"
+npx mcp-puppeteer -- search "your query"
 
 # Open URL and extract content (creates new browser instance)
-npx mcp-puppeteer fetch https://example.com
+npx mcp-puppeteer -- fetch https://example.com
 
 
 # Start MCP Service
