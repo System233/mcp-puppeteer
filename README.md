@@ -1,6 +1,28 @@
+# MCP搜索插件
+
+支持bing搜索引擎，以及拉取页面，搜索和拉取结果均为markdown。
+* 需要安装edge浏览器，如果你的edge已登录账号，浏览器和bing会记录搜索历史。
+
+## 用法
+
+```
+# 全局安装mcp-puppeteer
+npm install -g mcp-puppeteer
+
+# 启动MCP服务，或者在MCP插件中填入此命令
+npx mcp-puppeteer
+
+
+# 其他用法：搜索
+npx mcp-puppeteer search "搜索内容"
+# 抓取页面
+npx mcp-puppeteer fetch "https://example.com"
+```
+
 # MCP Puppeteer Service
 
 A web content search and extraction service using Puppeteer with browser instance management.
+
 
 ## Features
 
@@ -14,7 +36,7 @@ A web content search and extraction service using Puppeteer with browser instanc
 ## Installation
 
 ```bash
-npm install
+npm install -g mcp-puppeteer
 ```
 
 ## Usage as MCP Service
@@ -23,45 +45,16 @@ npm install
 
 ```bash
 # Search with query (uses browser pool)
-npm start -- search "your query"
+npx mcp-puppeteer search "your query"
 
 # Open URL and extract content (creates new browser instance)
-npm start -- fetch https://example.com
+npx mcp-puppeteer fetch https://example.com
+
+
+# Start MCP Service
+npx mcp-puppeteer
 
 ```
-
-### Browser Instance Management
-
-The service maintains a pool of browser instances to accelerate search operations:
-
-1. First search creates a new browser instance
-2. Subsequent searches reuse existing instances
-3. Idle instances are automatically closed after 5 minutes
-4. Maximum 3 concurrent browser instances
-
-### Performance Tips
-
-- For batch operations, keep the service running
-- Use `search` command for fastest results (reuses instances)
-- Close unused instances with `close-all` when done
-
-## Examples
-
-Search for "test query":
-```bash
-npm start -- search "test query"
-```
-
-Search with JSON output:
-```bash
-npm start -- search "node.js" json
-```
-
-Open a webpage:
-```bash
-npm start -- fetch https://example.com
-```
-
 
 ## Options
 
