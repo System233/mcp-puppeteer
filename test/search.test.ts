@@ -1,11 +1,14 @@
-import { launchBrowser } from '../src/browser';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
+import { BrowserManager } from '../src/browser';
 import { search } from '../src/search';
+ import { vi } from 'vitest';
 
+vi.setConfig({ testTimeout: 10_000 });
 describe('Search Functionality', () => {
   let browser: any;
 
   beforeAll(async () => {
-    browser = await launchBrowser();
+    browser = await BrowserManager.getBrowser();
   });
 
   afterAll(async () => {
@@ -13,7 +16,7 @@ describe('Search Functionality', () => {
   });
 
   test('Google Search', async () => {
-    const results = await search(browser, {
+    const results = await search({
       engine: 'google',
       query: 'test'
     });
@@ -23,7 +26,7 @@ describe('Search Functionality', () => {
   });
 
   test('Bing Search', async () => {
-    const results = await search(browser, {
+    const results = await search({
       engine: 'bing',
       query: 'test'
     });

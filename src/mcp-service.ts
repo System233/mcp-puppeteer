@@ -1,28 +1,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { BrowserManager } from "./browser";
 import { search } from "./search";
 import { extractContent, formatResults } from "./markdown";
 import { z } from "zod";
 
 const server = new McpServer({
-  name: "puppeteer-service",
+  name: "bing-search-service",
   version: "1.0.0",
 });
 
-const internalSearch = async (query: string, engine: "google" | "bing") => {
-  const browser = await BrowserManager.getBrowser();
-  const results = await search(browser, {
-    engine: engine as "google" | "bing",
-    query,
-  });
-  return results;
-};
-
-const internalFetch = async (url: string) => {
-  const browser = await BrowserManager.getBrowser();
-  return await extractContent(browser, url);
-};
 // 暴露搜索功能
 server.tool(
   "search",
@@ -30,7 +16,7 @@ server.tool(
   {
     query: z.string().describe("搜索关键词，必需"),
     engine: z
-      .enum(["bing"])
+      .enum(["google", "bing"])
       .optional()
       .describe("搜索引擎，可选，默认'bing'"),
     format: z
@@ -40,7 +26,7 @@ server.tool(
   },
   async (args, extra) => {
     const { query, engine = "bing", format = "markdown" } = args;
-    const results = await internalSearch(query, engine);
+    const results = await search({ query, engine });
 
     if (format === "json") {
       return {
@@ -75,12 +61,11 @@ server.tool(
   },
   async (args, extra) => {
     const { url } = args;
-    const browser = await BrowserManager.getBrowser();
     return {
       content: [
         {
           type: "text",
-          text: await extractContent(browser, url),
+          text: await extractContent(url),
         },
       ],
       _meta: {},
@@ -96,14 +81,15 @@ async function main() {
     switch (command) {
       case "search":
         const query = args[0];
-        const format = args[1] === "json" ? "json" : "markdown";
-        const result = await internalSearch(query, "bing");
+        const engine = args[1] === "google" ? "google" : "bing";
+        const format = args[2] === "json" ? "json" : "markdown";
+        const result = await search({ query, engine });
         console.log(formatResults(result));
         process.exit(0);
         break;
       case "fetch":
         const url = args[0];
-        const content = await internalFetch(url);
+        const content = await extractContent(url);
         console.log(content);
         process.exit(0);
         break;
@@ -120,5 +106,5 @@ if (process.argv[2] === "--") {
   // 启动MCP服务
   const transport = new StdioServerTransport();
   server.connect(transport);
-  console.error("Puppeteer MCP service started");
+  console.error("Puppeteer Search MCP service started");
 }

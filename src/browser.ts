@@ -1,4 +1,4 @@
-import edgePaths from "edge-paths";
+import * as edgePaths from "edge-paths";
 import { Browser, launch } from "puppeteer-core";
 
 interface BrowserOptions {
@@ -6,73 +6,36 @@ interface BrowserOptions {
   args?: string[];
 }
 
-
 export class BrowserManager {
-  private static browsers: Set<Browser> = new Set();
-  private static readonly MAX_BROWSERS = 1;
-  private static readonly IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+  private static browser: Browser | null = null;
 
   public static async getBrowser(): Promise<Browser> {
-    // 清理空闲浏览器
-    await this.cleanupIdleBrowsers();
-
-    // 查找可用的浏览器实例
-    for (const browser of this.browsers) {
-      if (browser.connected) {
-        return browser;
-      }
+    // 如果已有浏览器实例且仍然连接，则直接返回
+    if (this.browser && this.browser.connected) {
+      return this.browser;
     }
 
-    // 如果未达到上限，创建新实例
-    if (this.browsers.size < this.MAX_BROWSERS) {
-      const browser = await launchBrowser();
-      this.browsers.add(browser);
-      return browser;
-    }
-    throw new Error("no browser avaliable")
+    // 否则，创建一个新的浏览器实例
+    this.browser = await launchBrowser();
+    this.browser.on("disconnected", () => {
+      this.browser = null;
+    });
+    return this.browser;
   }
 
-  public static async restartBrowser(): Promise<void> {
-    await this.closeAll();
-  }
-
-  public static async closeBrowser(): Promise<void> {
-    if (this.browsers.size > 0) {
-      for (const browser of this.browsers) {
-        if (browser) {
-          await browser.close();
-          this.browsers.delete(browser);
-        }
-      }
-    }
-  }
-
-  public static async closeAll(): Promise<void> {
-    await Promise.all(
-      Array.prototype.map.call(this.browsers, (b) => b.close())
-    );
-    this.browsers = new Set();
-  }
-
-  public static listBrowsers(): { count: number } {
-    return { count: this.browsers.size };
-  }
-
-  private static async cleanupIdleBrowsers(): Promise<void> {
-    const now = Date.now();
-    for (const browser of this.browsers) {
-      if (!browser.connected) {
-        this.browsers.delete(browser);
-      }
+  public static async close(): Promise<void> {
+    if (this.browser) {
+      await this.browser.close();
+      this.browser = null;
     }
   }
 }
 
-export async function launchBrowser(
+async function launchBrowser(
   options: BrowserOptions = {}
 ): Promise<Browser> {
   const {
-    headless = true,
+    headless = !!parseInt(process.env.MCP_PUPPETEER_HEADLESS||"1"),
     args = ["--no-sandbox", "--disable-setuid-sandbox"],
   } = options;
 
@@ -85,9 +48,12 @@ export async function launchBrowser(
     );
   }
 
+  const userDataDir = process.env.PUPPETEER_PROFILE_PATH;
+
   return await launch({
     executablePath,
     headless,
+    userDataDir,
     args: [
       ...args,
       "--disable-blink-features=AutomationControlled",

@@ -1,4 +1,5 @@
 import { Browser, Page } from "puppeteer-core";
+import { BrowserManager } from "./browser";
 
 export interface SearchResult {
   title: string;
@@ -7,14 +8,21 @@ export interface SearchResult {
   content: string;
 }
 
-export async function search(
-  browser: Browser,
-  options: {
-    engine: "google" | "bing";
-    query: string;
-  }
-): Promise<SearchResult[]> {
+export async function search(options: {
+  engine: "google" | "bing";
+  query: string;
+}): Promise<SearchResult[]> {
+  const browser = await BrowserManager.getBrowser();
   const page = await browser.newPage();
+
+  await page.setRequestInterception(true);
+  page.on("request", (req) => {
+    if (["image", "stylesheet", "font", "media"].includes(req.resourceType())) {
+      req.abort();
+    } else {
+      req.continue();
+    }
+  });
 
   // 随机User-Agent列表
   const userAgents = [
@@ -53,37 +61,17 @@ export async function search(
   }
 }
 
-// 随机延迟函数
-function randomDelay(min: number, max: number): Promise<void> {
-  const delay = Math.floor(Math.random() * (max - min + 1)) + min;
-  return new Promise((resolve) => setTimeout(resolve, delay));
-}
-
 async function searchGoogle(
   page: Page,
   query: string
 ): Promise<SearchResult[]> {
-  // 模拟人类输入行为
-  await page.goto("https://www.google.com", {
-    waitUntil: "networkidle2",
-    timeout: 30000,
-  });
-
-  await randomDelay(1000, 3000);
-
-  // 模拟在搜索框中输入
-  await page.type('textarea[name="q"]', query, {
-    delay: 50 + Math.random() * 100,
-  });
-  await randomDelay(500, 1500);
-
-  // 模拟点击搜索按钮
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: "networkidle2", timeout: 30000 }),
-    page.click('input[name="btnK"]'),
-  ]);
-
-  await randomDelay(2000, 5000);
+  await page.goto(
+    `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+    {
+      waitUntil: "networkidle2",
+      timeout: 30000,
+    }
+  );
 
   // 更新后的Google搜索结果选择器
   const results = await page.$$eval(
@@ -94,7 +82,7 @@ async function searchGoogle(
           const title = div.querySelector("h3")?.textContent || "";
           const url = div.querySelector("a")?.href || "";
           const description =
-            div.querySelector('div[style="-webkit-line-clamp:2"]')
+            div.querySelector('div[style*="-webkit-line-clamp"]')
               ?.textContent || "";
 
           return {
@@ -135,7 +123,7 @@ async function searchBing(page: Page, query: string): Promise<SearchResult[]> {
         const title = li.querySelector("h2")?.textContent || "";
         const url = decodeBingUrl(li.querySelector("a")?.href || "");
         const description =
-          li.querySelector("div.b_caption p")?.textContent || "";
+          li.querySelector("h2+*")?.textContent || "";
 
         return {
           title,

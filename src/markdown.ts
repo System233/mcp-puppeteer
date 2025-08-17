@@ -1,6 +1,7 @@
 import { Browser } from "puppeteer-core";
 import { SearchResult } from "./search";
 import TurndownService from "turndown";
+import { BrowserManager } from "./browser";
 const turndownService = new TurndownService({
   headingStyle: "atx",
   codeBlockStyle: "fenced",
@@ -57,11 +58,11 @@ turndownService.addRule("divs", {
 
 turndownService.addRule("styles", {
   filter: ["style"],
-  replacement: () => "<!-- styles omitted -->\n",
+  replacement: () => "",
 });
 turndownService.addRule("scripts", {
   filter: ["script"],
-  replacement: () => "<!-- script omitted -->\n",
+  replacement: () => "",
 });
 
 turndownService.addRule("metas", {
@@ -72,7 +73,7 @@ turndownService.addRule("metas", {
 function convertToMarkdown(results: SearchResult[]): string {
   return results
     .map(
-      (result) => `### [${result.title}](${result.url})\n\n${result.description}`
+      (result,index) => `# ${index+1}. [${result.title}](${result.url.replace(/\?.*$/,'')})\n\n${result.description}`
     )
     .join("\n\n---\n\n");
 }
@@ -81,25 +82,23 @@ export function htmlToMarkdown(html: string): string {
   return turndownService.turndown(html);
 }
 
-export function extractContent(browser: Browser, url: string): Promise<string> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const page = await browser.newPage();
-      await page.goto(url, { waitUntil: "networkidle2" });
+export async function extractContent(url: string): Promise<string> {
+  const browser = await BrowserManager.getBrowser();
+  const page = await browser.newPage();
+  try {
+    await page.goto(url, { waitUntil: "networkidle2" });
 
-      const html = await page.evaluate(() => {
-        const article =
-          document.querySelector("article") ||
-          document.querySelector("main") ||
-          document.body;
-        return article.innerHTML;
-      });
-      await page.close();
-      resolve(htmlToMarkdown(html));
-    } catch (error) {
-      reject(error);
-    }
-  });
+    const html = await page.evaluate(() => {
+      const article =
+        document.querySelector("article") ||
+        document.querySelector("main") ||
+        document.body;
+      return article.innerHTML;
+    });
+    return htmlToMarkdown(html);
+  } finally {
+    await page.close();
+  }
 }
 
 export function formatResults(

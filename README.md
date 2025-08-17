@@ -1,66 +1,45 @@
-# MCP搜索插件
+# MCP Puppeteer Search
 
-支持bing搜索引擎，以及拉取页面，搜索和拉取结果均为markdown。
-* 需要安装edge浏览器，如果你的edge已登录账号，浏览器和bing会记录搜索历史。
+这是一个基于 Puppeteer 的 MCP（Model-~~Copilot~~ Protocol）搜索插件，它允许语言模型通过标准化的协议与本地浏览器进行交互，从而实现网络搜索和内容提取等功能。
 
-## 用法
+## 功能
 
-```
-# 全局安装mcp-puppeteer
-npm install -g mcp-puppeteer
+*   **多引擎搜索**: 通过 `search` 工具在 Bing 或 Google 上搜索关键词。
+*   **内容提取**: 通过 `fetch` 工具从指定 URL 提取主要内容，并将其转换为 Markdown 格式。
 
-# 启动MCP服务，或者在MCP插件中填入此命令
-npx mcp-puppeteer
+## 配置
 
+### 环境变量
 
-# 其他用法：搜索
-npx mcp-puppeteer -- search "搜索内容"
-# 抓取页面
-npx mcp-puppeteer -- fetch "https://example.com"
-```
+*   `MCP_PUPPETEER_HEADLESS`: (可选) 是否以无头模式运行 Puppeteer。默认为 `1` (启用)。
+*   `PUPPETEER_PROFILE_PATH`: (可选) 指定一个稳定的浏览器配置文件路径。这有助于保持登录状态和 Cookies，避免人机验证。
 
-# MCP Puppeteer Service
+## 使用
 
-A web content search and extraction service using Puppeteer with browser instance management.
+### 作为 MCP 服务
 
+MCP 服务允许语言模型（如 GPT）通过标准输入/输出与此插件进行通信。您可以使用 `npx` 来快速启动服务，而无需在本地克隆或安装此项目。
 
-## Features
-
-- Browser instance pooling for faster searches
-- Automatic browser instance reuse
-- Search engine adapters (Google/Bing)
-- HTML to Markdown conversion
-- URL content extraction
-- Human-like browsing behavior to avoid detection
-
-## Installation
+**启动命令：**
 
 ```bash
-npm install -g mcp-puppeteer
+npx -y mcp-puppeteer
 ```
 
-## Usage as MCP Service
+执行此命令后，服务将在后台启动，并等待语言模型的指令。
 
-### CLI Commands
+### 命令行
+
+您也可以直接在命令行中使用此工具进行快速的搜索和内容提取。
+
+**搜索：**
 
 ```bash
-# Search with query (uses browser pool)
-npx mcp-puppeteer -- search "your query"
-
-# Open URL and extract content (creates new browser instance)
-npx mcp-puppeteer -- fetch https://example.com
-
-
-# Start MCP Service
-npx mcp-puppeteer
-
+npx -y mcp-puppeteer -- search "your query" <google|bing>
 ```
 
-## Options
+**提取内容：**
 
-For search command:
-- `query`: Search query (required)
-- `format`: Output format - `markdown` (default) or `json`
-
-For open command:
-- `url`: Web page URL to fetch (required)
+```bash
+npx -y mcp-puppeteer -- fetch "https://example.com"
+```
